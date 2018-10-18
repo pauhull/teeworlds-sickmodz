@@ -59,7 +59,7 @@ void CPlayer::Tick()
 			m_Latency.m_AccumMax = 0;
 		}
 	}
-
+	
 	if(!GameServer()->m_World.m_Paused)
 	{
 		if(!m_pCharacter && m_Team == TEAM_SPECTATORS && m_SpectatorID == SPEC_FREEVIEW)
@@ -110,6 +110,8 @@ void CPlayer::PostTick()
 		m_ViewPos = GameServer()->m_apPlayers[m_SpectatorID]->m_ViewPos;
 }
 
+int h = 0;
+
 void CPlayer::Snap(int SnappingClient)
 {
 #ifdef CONF_DEBUG
@@ -126,9 +128,23 @@ void CPlayer::Snap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
 	StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
-	pClientInfo->m_UseCustomColor = m_TeeInfos.m_UseCustomColor;
-	pClientInfo->m_ColorBody = m_TeeInfos.m_ColorBody;
-	pClientInfo->m_ColorFeet = m_TeeInfos.m_ColorFeet;
+
+	if(str_comp(g_Config.m_SvGametype, "dm") == 0) {
+		h++;
+		int s = 0xff;
+		int l = 0x00;
+
+		int color = ((h & 0xff) << 16) + ((s & 0xff) << 8) + (l & 0xff);
+
+		pClientInfo->m_UseCustomColor = /*m_TeeInfos.m_UseCustomColor*/ true;
+		pClientInfo->m_ColorBody = /*m_TeeInfos.m_ColorBody*/ color;
+		pClientInfo->m_ColorFeet = /*m_TeeInfos.m_ColorFeet*/ color;
+	} else {
+		pClientInfo->m_UseCustomColor = m_TeeInfos.m_UseCustomColor;
+		pClientInfo->m_ColorBody = m_TeeInfos.m_ColorBody;
+		pClientInfo->m_ColorFeet = m_TeeInfos.m_ColorFeet;
+	}
+		
 
 	CNetObj_PlayerInfo *pPlayerInfo = static_cast<CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, m_ClientID, sizeof(CNetObj_PlayerInfo)));
 	if(!pPlayerInfo)

@@ -69,7 +69,7 @@ void CLaser::DoBounce()
 			m_Energy -= distance(m_From, m_Pos) + GameServer()->Tuning()->m_LaserBounceCost;
 			m_Bounces++;
 
-			if(m_Bounces > laserBounce)
+			if(m_Bounces > /*laserBounce*/ 5) // laserBounce
 				m_Energy = -1;
 
 			GameServer()->CreateSound(m_Pos, SOUND_RIFLE_BOUNCE);

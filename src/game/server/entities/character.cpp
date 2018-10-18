@@ -247,7 +247,7 @@ void CCharacter::HandleWeaponSwitch()
 void CCharacter::FireWeapon()
 {
 	
-	int laserRange = 400;
+	int laserRange = 600;
 	int hammerDamage = 25;
 	
 	/* Infinite shooting
@@ -332,25 +332,37 @@ void CCharacter::FireWeapon()
 
 		case WEAPON_GUN:
 		{
-			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GUN,
-				m_pPlayer->GetCID(),
-				ProjStartPos,
-				Direction,
-				(int)(Server()->TickSpeed()*GameServer()->Tuning()->m_GunLifetime),
-				1, 0, 0, -1, WEAPON_GUN);
+
+			int ShotSpread = 1;
+
+			for(int i = -ShotSpread; i <= ShotSpread; ++i)
+			{
+				//float Spreading[] = {-0.28f, 0.21f, -0.14f, -0.070f, 0, 0.070f, 0.14f, 0.21f, 0.28f};
+				float a = GetAngle(Direction);
+				a += ((float)i) * 0.07f; // automatic spread
+				float v = 1-(absolute(i)/(float)ShotSpread);
+				float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
+				CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GUN,
+					m_pPlayer->GetCID(),
+					ProjStartPos,
+					vec2(cosf(a), sinf(a))*Speed,
+					(int)(Server()->TickSpeed()*GameServer()->Tuning()->m_GunLifetime),
+					1, 0, 0, -1, WEAPON_GUN);
+			}
 
 			GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE);
+
 		} break;
 
 		case WEAPON_SHOTGUN:
 		{
-			int ShotSpread = 2;
+			int ShotSpread = 4;
 
 			for(int i = -ShotSpread; i <= ShotSpread; ++i)
 			{
-				float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
+				//float Spreading[] = {-0.28f, 0.21f, -0.14f, -0.070f, 0, 0.070f, 0.14f, 0.21f, 0.28f};
 				float a = GetAngle(Direction);
-				a += Spreading[i+2];
+				a += ((float)i) * 0.07f; // automatic spread
 				float v = 1-(absolute(i)/(float)ShotSpread);
 				float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
 				CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
